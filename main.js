@@ -1,6 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     const generateBtn = document.getElementById('generate-btn');
-    const ballContainer = document.getElementById('lotto-numbers');
+    const themeBtn = document.getElementById('theme-btn');
+    const resultsContainer = document.getElementById('lotto-results-container');
+    const body = document.body;
+
+    // 테마 토글 로직
+    themeBtn.addEventListener('click', () => {
+        if (body.classList.contains('dark-mode')) {
+            body.classList.replace('dark-mode', 'light-mode');
+            themeBtn.textContent = '🌙 다크 모드';
+        } else {
+            body.classList.replace('light-mode', 'dark-mode');
+            themeBtn.textContent = '☀️ 라이트 모드';
+        }
+    });
 
     function getColorClass(number) {
         if (number <= 10) return 'color-1';
@@ -21,31 +34,40 @@ document.addEventListener('DOMContentLoaded', () => {
         return numbers.sort((a, b) => a - b);
     }
 
-    function updateDisplay(numbers) {
-        ballContainer.innerHTML = '';
-        
-        numbers.forEach((num, index) => {
-            setTimeout(() => {
-                const ball = document.createElement('div');
-                ball.className = `ball ${getColorClass(num)}`;
-                ball.textContent = num;
-                ball.style.animationDelay = `${index * 0.1}s`;
-                ballContainer.appendChild(ball);
-            }, index * 100);
+    function createRow(index, numbers) {
+        const row = document.createElement('div');
+        row.className = 'lotto-row';
+        row.style.animationDelay = `${index * 0.1}s`;
+
+        const label = document.createElement('span');
+        label.className = 'row-label';
+        label.textContent = String.fromCharCode(65 + index); // A, B, C, D, E
+        row.appendChild(label);
+
+        numbers.forEach(num => {
+            const ball = document.createElement('div');
+            ball.className = `ball ${getColorClass(num)}`;
+            ball.textContent = num;
+            row.appendChild(ball);
         });
+
+        return row;
     }
 
     generateBtn.addEventListener('click', () => {
-        // 버튼 비활성화 (애니메이션 중 중복 클릭 방지)
+        resultsContainer.innerHTML = '';
         generateBtn.disabled = true;
-        generateBtn.textContent = '번호 추출 중...';
+        generateBtn.textContent = '행운을 불러오는 중...';
 
-        const numbers = generateLottoNumbers();
-        updateDisplay(numbers);
+        for (let i = 0; i < 5; i++) {
+            const numbers = generateLottoNumbers();
+            const row = createRow(i, numbers);
+            resultsContainer.appendChild(row);
+        }
 
         setTimeout(() => {
             generateBtn.disabled = false;
-            generateBtn.textContent = '번호 다시 생성하기';
-        }, 1000);
+            generateBtn.textContent = '번호 5개 세트 다시 생성';
+        }, 600);
     });
 });
